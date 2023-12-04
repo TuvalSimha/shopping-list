@@ -1,13 +1,7 @@
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import { typeDefinitions } from "./type-definitions";
 import { GraphQLContext } from "./context";
-
-type Item = {
-  id: string;
-  title: string;
-  quantity: string;
-  comments: Comment[];
-};
+import { Item } from "../__generated__/type-resolvers";
 
 const resolvers = {
   Query: {
@@ -23,6 +17,7 @@ const resolvers = {
     id: (parent: Item) => parent.id,
     title: (parent: Item) => parent.title,
     quantity: (parent: Item) => parent.quantity,
+    status: (parent: Item) => parent.status,
     comments: (parent: Item, args: {}, context: GraphQLContext) =>
       context.prisma.comment.findMany({
         where: { itemId: parseInt(parent.id) },

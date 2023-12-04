@@ -13,6 +13,7 @@ model Item {
   title     String
   quantity  String    @default("1")
   Comment   Comment[]
+  status    String    @default("PENDING")
 }
 
 model Comment {
