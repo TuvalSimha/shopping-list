@@ -15,6 +15,13 @@ export const typeDefinitions = /* GraphQL */ `
     title: String!
     quantity: String!
     comments: [Comment!]!
+    status: ItemStatus!
+  }
+
+  enum ItemStatus {
+    ACTIVE
+    INACTIVE
+    PENDING
   }
 
   type Comment {
