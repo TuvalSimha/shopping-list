@@ -1,16 +1,24 @@
 export const typeDefinitions = /* GraphQL */ `
   type Query {
     info: String!
-    feed: [Link!]!
+    feed: [Item!]!
+    comment(id: ID!): Comment
   }
 
   type Mutation {
-    postLink(url: String!, description: String!): Link!
+    addItem(title: String!, quantity: String!): Item!
+    addCommentOnItem(itemId: ID!, body: String!): Comment!
   }
 
-  type Link {
+  type Item {
     id: ID!
-    description: String!
-    url: String!
+    title: String!
+    quantity: String!
+    comments: [Comment!]!
+  }
+
+  type Comment {
+    id: ID!
+    body: String!
   }
 `;

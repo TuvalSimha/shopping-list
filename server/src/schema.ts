@@ -1,40 +1,61 @@
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import { typeDefinitions } from "./type-definitions";
+import { GraphQLContext } from "./context";
 
-type Link = {
+type Item = {
   id: string;
-  url: string;
-  description: string;
+  title: string;
+  quantity: string;
+  comments: Comment[];
 };
-
-const links: Link[] = [
-  {
-    id: "link-0",
-    url: "www.howtographql.com",
-    description: "Fullstack tutorial for GraphQL",
-  },
-];
 
 const resolvers = {
   Query: {
     info: () => `This is the API of a Hackernews Clone`,
-    feed: () => links,
+    feed: (parent: unknown, args: {}, context: GraphQLContext) =>
+      context.prisma.item.findMany(),
+    comment: (parent: unknown, args: { id: string }, context: GraphQLContext) =>
+      context.prisma.comment.findUnique({
+        where: { id: parseInt(args.id) },
+      }),
+  },
+  Item: {
+    id: (parent: Item) => parent.id,
+    title: (parent: Item) => parent.title,
+    quantity: (parent: Item) => parent.quantity,
+    comments: (parent: Item, args: {}, context: GraphQLContext) =>
+      context.prisma.comment.findMany({
+        where: { itemId: parseInt(parent.id) },
+      }),
   },
   Mutation: {
-    postLink: (parent: unknown, args: { description: string; url: string }) => {
-      // 1
-      let idCount = links.length;
+    async addItem(
+      parent: unknown,
+      args: { title: string; quantity: string },
+      context: GraphQLContext
+    ) {
+      const newItem = await context.prisma.item.create({
+        data: {
+          title: args.title,
+          quantity: args.quantity,
+        },
+      });
+      return newItem;
+    },
 
-      // 2
-      const link: Link = {
-        id: `link-${idCount}`,
-        description: args.description,
-        url: args.url,
-      };
+    async addCommentOnItem(
+      parent: unknown,
+      args: { itemId: string; body: string },
+      context: GraphQLContext
+    ) {
+      const newComment = await context.prisma.comment.create({
+        data: {
+          itemId: parseInt(args.itemId),
+          body: args.body,
+        },
+      });
 
-      links.push(link);
-
-      return link;
+      return newComment;
     },
   },
 };
